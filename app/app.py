@@ -4,18 +4,15 @@ import numpy as np
 import joblib
 import os
 
-# ------------------------------------------------
-# Page Config (MUST BE FIRST STREAMLIT COMMAND)
-# ------------------------------------------------
+
+# Page Config 
 st.set_page_config(
     page_title="Student Performance Dashboard",
     page_icon="🎓",
     layout="wide"
 )
 
-# ------------------------------------------------
 # Custom Styling
-# ------------------------------------------------
 st.markdown("""
     <style>
         .main {
@@ -38,15 +35,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ------------------------------------------------
+
 # Paths
-# ------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "..", "models")
 
-# ------------------------------------------------
+
 # Load Models
-# ------------------------------------------------
 try:
     classifier = joblib.load(os.path.join(MODEL_PATH, "classifier.joblib"))
     scaler = joblib.load(os.path.join(MODEL_PATH, "scaler.joblib"))
@@ -61,9 +56,8 @@ except Exception as e:
     st.error(f"❌ Model loading failed: {e}")
     st.stop()
 
-# ------------------------------------------------
+
 # Header
-# ------------------------------------------------
 st.markdown("""
 # 🎓 Student Performance Intelligence Dashboard  
 ### AI-Powered Academic Performance Prediction System
@@ -72,9 +66,8 @@ Upload student data to generate predictions, clusters, and smart recommendations
 
 st.markdown("---")
 
-# ------------------------------------------------
+
 # File Upload
-# ------------------------------------------------
 uploaded_file = st.file_uploader("📂 Upload CSV File", type=["csv"])
 
 if uploaded_file is not None:
@@ -92,15 +85,13 @@ if uploaded_file is not None:
         st.error(f"❌ Missing required columns: {missing_cols}")
         st.stop()
 
-    # ------------------------------------------------
+
     # Data Preview
-    # ------------------------------------------------
     st.markdown("## 📄 Uploaded Data Preview")
     st.dataframe(df.head(), use_container_width=True)
 
-    # ------------------------------------------------
+
     # Preprocessing
-    # ------------------------------------------------
     df.fillna(column_means, inplace=True)
 
     df["Time_Spent"] = df["Time_Spent"].clip(
@@ -109,9 +100,8 @@ if uploaded_file is not None:
     )
     df["Attendance"] = df["Attendance"].clip(0, 100)
 
-    # ------------------------------------------------
+
     # Feature Engineering
-    # ------------------------------------------------
     df["Total_Quiz_Score"] = df["Quiz1"] + df["Quiz2"] + df["Quiz3"]
     df["Average_Quiz_Score"] = df["Total_Quiz_Score"] / 3
     df["Quiz_Std"] = df[["Quiz1", "Quiz2", "Quiz3"]].std(axis=1)
@@ -127,18 +117,16 @@ if uploaded_file is not None:
         df["Total_Quiz_Score"] / (df["Time_Spent"] + 1)
     )
 
-    # ------------------------------------------------
+
     # Classification
-    # ------------------------------------------------
     X = df[feature_columns]
     X_scaled = scaler.transform(X)
 
     df["Prediction"] = classifier.predict(X_scaled)
     df["Prediction_Label"] = df["Prediction"].map({0: "Fail", 1: "Pass"})
 
-    # ------------------------------------------------
+
     # Clustering
-    # ------------------------------------------------
     cluster_input = df[[
         "Average_Quiz_Score",
         "Engagement_Index",
@@ -156,9 +144,8 @@ if uploaded_file is not None:
 
     df["Cluster_Label"] = df["Cluster"].map(cluster_map)
 
-    # ------------------------------------------------
+
     # Recommendation Logic
-    # ------------------------------------------------
     def generate_recommendation(row):
         if row["Prediction_Label"] == "Fail":
             if row["Cluster_Label"] == "At Risk":
@@ -177,9 +164,8 @@ if uploaded_file is not None:
 
     df["Recommendation"] = df.apply(generate_recommendation, axis=1)
 
-    # ------------------------------------------------
+
     # Dashboard Metrics
-    # ------------------------------------------------
     st.markdown("## 📊 Dashboard Overview")
 
     col1, col2, col3 = st.columns(3)
@@ -195,9 +181,8 @@ if uploaded_file is not None:
 
     st.markdown("---")
 
-    # ------------------------------------------------
+
     # Charts
-    # ------------------------------------------------
     st.markdown("## 📈 Insights")
 
     colA, colB = st.columns(2)
@@ -212,9 +197,8 @@ if uploaded_file is not None:
 
     st.markdown("---")
 
-    # ------------------------------------------------
+
     # Final Results
-    # ------------------------------------------------
     st.markdown("## 📑 Final Results")
     st.dataframe(df, use_container_width=True)
 
@@ -230,8 +214,6 @@ if uploaded_file is not None:
 else:
     st.info("📌 Please upload a CSV file to begin.")
 
-# ------------------------------------------------
-# Footer
-# ------------------------------------------------
+
 st.markdown("---")
 st.markdown("Developed for AI & ML Project | Student Performance Analytics 🚀")
