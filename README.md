@@ -3,7 +3,6 @@
 <p align="center">
 Live Demo: <a href="https://learning-analytics-ml-system-ludv9tzwzk5x2t4wen7a8e.streamlit.app/">Click here to use the deployed app</a>
 <br><br>
-<img src="https://drive.google.com/file/d/1-VMlE0VcE3eq4YBsgHHa6Wj3iGnyVZUp/view?usp=drive_link" alt="image">
 </p>
 
 An end-to-end Machine Learning system that predicts student academic outcomes, segments behavioral patterns using clustering, and generates actionable academic recommendations. The system is deployed through an interactive Streamlit dashboard.
